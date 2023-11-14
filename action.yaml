@@ -1,0 +1,50 @@
+name: cloud-login
+description: ''
+inputs:
+  aws_role:
+    description: ''
+    required: false
+  aws_region:
+    description: ''
+    required: false
+  azure_client_id:
+    description: ''
+    required: false
+  azure_tenant_id:
+    description: ''
+    required: false
+  azure_subscription_id:
+    description: ''
+    required: false
+  openstack_config:
+    description: ''
+    required: false
+runs:
+  using: composite
+  steps:
+    # AWS
+    - uses: aws-actions/configure-aws-credentials@v4
+      if: inputs.aws_role != ''
+      with:
+        role-to-assume: ${{ inputs.aws_role }}
+        aws-region: ${{ inputs.aws_region }}
+    # Azure
+    - uses: azure/login@v1
+      if: inputs.azure_client_id != ''
+      with:
+        client-id: ${{ inputs.azure_client_id }}
+        tenant-id: ${{ inputs.azure_tenant_id }}
+        subscription-id: ${{ inputs.azure_subscription_id }}
+    - run: |
+        echo "ARM_CLIENT_ID=${{ inputs.azure_client_id }}" | tee -a $GITHUB_ENV
+        echo "ARM_TENANT_ID=${{ inputs.azure_tenant_id }}" | tee -a $GITHUB_ENV
+        echo "ARM_SUBSCRIPTION_ID=${{ inputs.azure_subscription_id }}" | tee -a $GITHUB_ENV
+      if: inputs.azure_client_id != ''
+      shell: bash
+    # Openstack
+    - run: |
+        mkdir -p ${{ github.workspace }}/.config/openstack
+        echo "${{ inputs.openstack_config }}" > ${{ github.workspace }}/.config/openstack/cloud.yaml
+        echo "OS_CLIENT_CONFIG_FILE=${{ github.workspace }}/.config/openstack/cloud.yaml" | tee -a $GITHUB_ENV
+      if: inputs.openstack_config != ''
+      shell: bash
