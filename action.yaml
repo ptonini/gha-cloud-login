@@ -44,7 +44,7 @@ runs:
     # Openstack
     - run: |
         mkdir -p ${{ github.workspace }}/.config/openstack
-        echo "${{ inputs.openstack_config }}" > ${{ github.workspace }}/.config/openstack/cloud.yaml
+        echo "${{ inputs.openstack_config }}" | base64 -d > ${{ github.workspace }}/.config/openstack/cloud.yaml
         echo "OS_CLIENT_CONFIG_FILE=${{ github.workspace }}/.config/openstack/cloud.yaml" | tee -a $GITHUB_ENV
       if: inputs.openstack_config != ''
       shell: bash
