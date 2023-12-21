@@ -34,7 +34,7 @@ inputs:
 runs:
   using: composite
   steps:
-    # Hashicorp Vault
+    # Hashicorp Vault #########################################################
     - uses: hashicorp/vault-action@v2
       if: inputs.vault_addr != ''
       with:
@@ -43,13 +43,15 @@ runs:
         path: ${{ inputs.vault_path }}
         role: ${{ inputs.vault_role }}
         exportToken: true
-    # AWS
+
+    # AWS #####################################################################
     - uses: aws-actions/configure-aws-credentials@v4
       if: inputs.aws_role != ''
       with:
         role-to-assume: ${{ inputs.aws_role }}
         aws-region: ${{ inputs.aws_region }}
-    # Azure
+
+    # Azure ###################################################################
     - uses: azure/login@v1
       if: inputs.azure_client_id != ''
       with:
@@ -62,7 +64,8 @@ runs:
         echo "ARM_TENANT_ID=${{ inputs.azure_tenant_id }}" | tee -a $GITHUB_ENV
         echo "ARM_SUBSCRIPTION_ID=${{ inputs.azure_subscription_id }}" | tee -a $GITHUB_ENV
       shell: bash
-    # Openstack
+
+    # Openstack ###############################################################
     - if: inputs.openstack_config != ''
       run: |
         mkdir -p ${{ github.workspace }}/.config/openstack
